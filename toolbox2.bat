@@ -6,6 +6,10 @@
 REM Elevation check and relaunch as admin if needed
 powershell -Command "If(-not ([Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process -FilePath '%~f0' -Verb RunAs; Exit }"
 
+:: Self-heal for cmd parsing issues on older Windows 10 builds.
+:: If this file contains echo lines with unescaped & characters, create a fixed ASCII copy and relaunch it elevated.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& { $p = '%~f0'; try { $lines = Get-Content -LiteralPath $p -ErrorAction Stop } catch { Exit 0 }; $changed = $false; $out = New-Object System.Collections.Generic.List[System.String]; foreach ($line in $lines) { if ($line -match '^[ \t]*echo\b' -and $line -match '(?<!\^)\s&\s') { $line = $line -replace '(?<!\^)\s&\s',' ^& '; $changed = $true } $out.Add($line) }; if ($changed) { $fixed = [IO.Path]::ChangeExtension($p, '.fixed.bat'); Set-Content -LiteralPath $fixed -Value $out -Encoding Ascii; Start-Process -FilePath $fixed -Verb RunAs; Exit 0 } }"
+
 title Toolbox2 - Windows Admin Toolkit
 :main
 cls
@@ -149,46 +153,57 @@ goto groups
 :: -------------------------
 :policies
 cls
-echo Password & Lockout Policies submenu
-echo 1) Set minimum password length
-echo 2) Enable password complexity
-echo 3) Set max/min password age
-echo 4) Set password history length
-echo 5) Disable reversible encryption
-echo 6) Set account lockout threshold/duration/window
-echo 7) Back
-set /p pchoice=Choice [1-7]: 
+echo Password ^& Lockout Policies submenu
+echo 1) Apply recommended password ^& lockout policy (secure defaults)
+echo 2) Set minimum password length
+echo 3) Enable password complexity
+echo 4) Set max/min password age
+echo 5) Set password history length
+echo 6) Disable reversible encryption
+echo 7) Set account lockout threshold/duration/window
+echo 8) Back
+set /p pchoice=Choice [1-8]: 
 if "%pchoice%"=="1" (
+  echo Applying recommended password and lockout policy now...
+  powershell -NoProfile -Command "# Recommended defaults: MinLen=14, Complexity=1, MaxAge=60, MinAge=1, History=24, DisableReversible=0, LockoutThreshold=5, LockoutDuration=30, LockoutWindow=30; `
+    $min=14; $max=60; $minAge=1; $history=24; $lt=5; $ld=30; $lw=30; `
+    net accounts /minpwlen:$min; net accounts /maxpwage:$max; net accounts /minpwage:$minAge; net accounts /lockoutthreshold:$lt; net accounts /lockoutduration:$ld; net accounts /lockoutwindow:$lw; `
+    # Local policy edits via secedit (best-effort)
+    $cfg = "$env:windir\Temp\secpol_toolbox.cfg"; secedit /export /cfg $cfg; $c = Get-Content $cfg; $c = $c -replace 'PasswordComplexity = \d+','PasswordComplexity = 1'; $c = $c -replace 'PasswordHistorySize = \d+','PasswordHistorySize = '+$history; $c = $c -replace 'ClearTextPassword = \d+','ClearTextPassword = 0'; $c | Set-Content $cfg; secedit /configure /db secedit.sdb /cfg $cfg /areas SECURITYPOLICY; Write-Host 'Applied recommended password & lockout settings'"
+  pause
+  goto main
+)
+if "%pchoice%"=="2" (
   set /p minlen=Enter minimum password length e.g. 14: 
   powershell -NoProfile -Command "param($m) net accounts /minpwlen:$m; Write-Host 'Set min password length to' $m" -ArgumentList "%minlen%"
   pause
   goto main
 )
-if "%pchoice%"=="2" (
+if "%pchoice%"=="3" (
   echo Enabling password complexity (local policy)...
   powershell -NoProfile -Command "secedit /export /cfg $env:windir\Temp\secpol.cfg; (Get-Content $env:windir\Temp\secpol.cfg) -replace 'PasswordComplexity = \d+','PasswordComplexity = 1' | Set-Content $env:windir\Temp\secpol.cfg; secedit /configure /db secedit.sdb /cfg $env:windir\Temp\secpol.cfg /areas SECURITYPOLICY; Write-Host 'Password complexity enabled (local policy)';"
   pause
   goto main
 )
-if "%pchoice%"=="3" (
+if "%pchoice%"=="4" (
   set /p maxdays=Enter maximum password age in days e.g. 60: 
   set /p mindays=Enter minimum password age in days e.g. 1: 
   powershell -NoProfile -Command "param($max,$min) net accounts /maxpwage:$max; net accounts /minpwage:$min; Write-Host 'Set max/min password age to' $max '/' $min" -ArgumentList "%maxdays%","%mindays%"
   pause
   goto main
 )
-if "%pchoice%"=="4" (
+if "%pchoice%"=="5" (
   set /p history=Enter password history count e.g. 24: 
   powershell -NoProfile -Command "param($h) secedit /export /cfg $env:windir\Temp\secpol.cfg; (Get-Content $env:windir\Temp\secpol.cfg) -replace 'PasswordHistorySize = \d+','PasswordHistorySize = $h' | Set-Content $env:windir\Temp\secpol.cfg; secedit /configure /db secedit.sdb /cfg $env:windir\Temp\secpol.cfg /areas SECURITYPOLICY; Write-Host 'Password history set to' $h" -ArgumentList "%history%"
   pause
   goto main
 )
-if "%pchoice%"=="5" (
+if "%pchoice%"=="6" (
   powershell -NoProfile -Command "secedit /export /cfg $env:windir\Temp\secpol.cfg; (Get-Content $env:windir\Temp\secpol.cfg) -replace 'ClearTextPassword = \d+','ClearTextPassword = 0' | Set-Content $env:windir\Temp\secpol.cfg; secedit /configure /db secedit.sdb /cfg $env:windir\Temp\secpol.cfg /areas SECURITYPOLICY; Write-Host 'Disabled reversible encryption (local policy)';"
   pause
   goto main
 )
-if "%pchoice%"=="6" (
+if "%pchoice%"=="7" (
   set /p thr=Enter lockout threshold (invalid attempts) e.g. 5: 
   set /p dur=Enter lockout duration in minutes e.g. 30: 
   set /p win=Enter lockout observation window in minutes e.g. 30: 
@@ -196,7 +211,7 @@ if "%pchoice%"=="6" (
   pause
   goto main
 )
-if "%pchoice%"=="7" goto main
+if "%pchoice%"=="8" goto main
 goto policies
 
 :: -------------------------
