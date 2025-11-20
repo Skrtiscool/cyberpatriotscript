@@ -15,18 +15,18 @@ echo  (Grouped options; pick a number)
 echo ===============================
 echo 1) User Accounts
 echo 2) Groups
-echo 3) Password & Lockout Policies
+echo 3) Password ^& Lockout Policies
 echo 4) Auditing
 echo 5) Services
-echo 6) Features & Roles (SMBv1, Telnet, FTP, IIS)
+echo 6) Features ^& Roles (SMBv1, Telnet, FTP, IIS)
 echo 7) Firewall
 echo 8) Network (IP/DNS/Adapters)
-echo 9) File System & ACLs
-echo 10) Startup & Scheduled Tasks
-echo 11) Updates & Reboot
-echo 12) Cleanup & Browsers
+echo 9) File System ^& ACLs
+echo 10) Startup ^& Scheduled Tasks
+echo 11) Updates ^& Reboot
+echo 12) Cleanup ^& Browsers
 echo 13) IIS / DNS / DHCP (server roles)
-echo 14) Security Resets & Repair (SFC/DISM/Firewall reset)
+echo 14) Security Resets ^& Repair (SFC/DISM/Firewall reset)
 echo 15) Exit
 echo.
 set /p choice=Enter choice [1-15]: 
