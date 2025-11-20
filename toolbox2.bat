@@ -69,7 +69,7 @@ if "%uchoice%"=="1" (
 )
 if "%uchoice%"=="2" (
   set /p uname=Enter new username: 
-  set /p upass=Enter password (will be visible): 
+  set /p upass=Enter password (visible): 
   powershell -NoProfile -Command "param([string]$u,[string]$p) if (Get-Command New-LocalUser -ErrorAction SilentlyContinue) { if (-not (Get-LocalUser -Name $u -ErrorAction SilentlyContinue)) { $sec=ConvertTo-SecureString $p -AsPlainText -Force; New-LocalUser -Name $u -Password $sec -FullName $u -Description 'Created by Toolbox2'; Add-LocalGroupMember -Group 'Users' -Member $u; Write-Host 'Created' $u } else { Write-Host 'User exists:' $u } } else { net user $u $p /add; Write-Host 'Created (net) ' $u }" -ArgumentList "%uname%","%upass%"
   pause
   goto main
@@ -159,7 +159,7 @@ echo 6) Set account lockout threshold/duration/window
 echo 7) Back
 set /p pchoice=Choice [1-7]: 
 if "%pchoice%"=="1" (
-  set /p minlen=Enter minimum password length (e.g. 14): 
+  set /p minlen=Enter minimum password length e.g. 14: 
   powershell -NoProfile -Command "param($m) net accounts /minpwlen:$m; Write-Host 'Set min password length to' $m" -ArgumentList "%minlen%"
   pause
   goto main
@@ -171,14 +171,14 @@ if "%pchoice%"=="2" (
   goto main
 )
 if "%pchoice%"=="3" (
-  set /p maxdays=Enter maximum password age in days (e.g. 60): 
-  set /p mindays=Enter minimum password age in days (e.g. 1): 
+  set /p maxdays=Enter maximum password age in days e.g. 60: 
+  set /p mindays=Enter minimum password age in days e.g. 1: 
   powershell -NoProfile -Command "param($max,$min) net accounts /maxpwage:$max; net accounts /minpwage:$min; Write-Host 'Set max/min password age to' $max '/' $min" -ArgumentList "%maxdays%","%mindays%"
   pause
   goto main
 )
 if "%pchoice%"=="4" (
-  set /p history=Enter password history count (e.g. 24): 
+  set /p history=Enter password history count e.g. 24: 
   powershell -NoProfile -Command "param($h) secedit /export /cfg $env:windir\Temp\secpol.cfg; (Get-Content $env:windir\Temp\secpol.cfg) -replace 'PasswordHistorySize = \d+','PasswordHistorySize = $h' | Set-Content $env:windir\Temp\secpol.cfg; secedit /configure /db secedit.sdb /cfg $env:windir\Temp\secpol.cfg /areas SECURITYPOLICY; Write-Host 'Password history set to' $h" -ArgumentList "%history%"
   pause
   goto main
@@ -189,9 +189,9 @@ if "%pchoice%"=="5" (
   goto main
 )
 if "%pchoice%"=="6" (
-  set /p thr=Lockout threshold (invalid attempts, e.g. 5): 
-  set /p dur=Lockout duration (minutes, e.g. 30): 
-  set /p win=Observation window (minutes, e.g. 30): 
+  set /p thr=Enter lockout threshold (invalid attempts) e.g. 5: 
+  set /p dur=Enter lockout duration in minutes e.g. 30: 
+  set /p win=Enter lockout observation window in minutes e.g. 30: 
   powershell -NoProfile -Command "param($t,$d,$w) net accounts /lockoutthreshold:$t; net accounts /lockoutduration:$d; net accounts /lockoutwindow:$w; Write-Host 'Lockout configured'" -ArgumentList "%thr%","%dur%","%win%"
   pause
   goto main
@@ -266,7 +266,7 @@ echo 1) Disable SMBv1
 echo 2) Disable Telnet Client
 echo 3) Disable FTP / IIS features
 echo 4) Back
-set /p fchoice=Choice [1-4]: 
+  set /p fchoice=Choice [1-4]: 
 if "%fchoice%"=="1" (
   powershell -NoProfile -Command "If (Get-Command Set-SmbServerConfiguration -ErrorAction SilentlyContinue) { Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force } ; dism /online /norestart /disable-feature /featurename:SMB1Protocol; Write-Host 'SMBv1 disable attempted. Restart may be required.'"
   pause
@@ -312,7 +312,7 @@ if "%fwchoice%"=="2" (
 )
 if "%fwchoice%"=="3" (
   set /p rname=Enter rule name (display): 
-  set /p rport=Enter local TCP port (e.g. 3389): 
+  set /p rport=Enter local TCP port e.g. 3389: 
   powershell -NoProfile -Command "param($n,$p) New-NetFirewallRule -DisplayName $n -Direction Inbound -Action Allow -Protocol TCP -LocalPort $p -Profile Domain,Private,Public; Write-Host 'Created rule' $n" -ArgumentList "%rname%","%rport%"
   pause
   goto main
@@ -348,29 +348,29 @@ if "%nchoice%"=="1" (
   goto main
 )
 if "%nchoice%"=="2" (
-  set /p iface=Interface Alias (e.g. Ethernet): 
-  set /p ip=IPv4 address: 
-  set /p prefix=Prefix length (e.g. 24): 
-  set /p gw=Gateway: 
+  set /p iface=Enter Interface Alias e.g. Ethernet: 
+  set /p ip=Enter IPv4 address: 
+  set /p prefix=Enter Prefix length e.g. 24: 
+  set /p gw=Enter Gateway: 
   powershell -NoProfile -Command "param($i,$a,$p,$g) New-NetIPAddress -InterfaceAlias $i -IPAddress $a -PrefixLength $p -DefaultGateway $g; Write-Host 'Set static IP on' $i" -ArgumentList "%iface%","%ip%","%prefix%","%gw%"
   pause
   goto main
 )
 if "%nchoice%"=="3" (
-  set /p ifdns=Interface Alias: 
-  set /p dns=DNS server(s) comma-separated: 
+  set /p ifdns=Enter Interface Alias: 
+  set /p dns=Enter DNS server(s) comma-separated: 
   powershell -NoProfile -Command "param($i,$d) Set-DnsClientServerAddress -InterfaceAlias $i -ServerAddresses ($d -split ','); Write-Host 'Set DNS on' $i" -ArgumentList "%ifdns%","%dns%"
   pause
   goto main
 )
 if "%nchoice%"=="4" (
-  set /p dhcpif=Interface Alias: 
+  set /p dhcpif=Enter Interface Alias: 
   powershell -NoProfile -Command "param($i) Set-NetIPInterface -InterfaceAlias $i -Dhcp Enabled; Set-DnsClientServerAddress -InterfaceAlias $i -ResetServerAddresses; Write-Host 'Enabled DHCP on' $i" -ArgumentList "%dhcpif%"
   pause
   goto main
 )
 if "%nchoice%"=="5" (
-  set /p v6if=Interface Alias: 
+  set /p v6if=Enter Interface Alias: 
   powershell -NoProfile -Command "param($i) Disable-NetAdapterBinding -Name $i -ComponentID ms_tcpip6; Write-Host 'Disabled IPv6 binding on' $i" -ArgumentList "%v6if%"
   pause
   goto main
@@ -398,16 +398,16 @@ if "%fschoice%"=="1" (
   goto main
 )
 if "%fschoice%"=="2" (
-  set /p grantpath=Folder path: 
-  set /p guser=User (DOMAIN\User or User): 
-  set /p gperm=Permission (e.g. Modify): 
+  set /p grantpath=Enter folder path: 
+  set /p guser=Enter user (DOMAIN\User or User): 
+  set /p gperm=Enter permission e.g. Modify: 
   powershell -NoProfile -Command "param($p,$u,$r) $acl=Get-Acl $p; $ar=New-Object System.Security.AccessControl.FileSystemAccessRule($u,$r,'ContainerInherit,ObjectInherit','None','Allow'); $acl.AddAccessRule($ar); Set-Acl -Path $p -AclObject $acl; Write-Host 'Granted' $r 'to' $u 'on' $p" -ArgumentList "%grantpath%","%guser%","%gperm%"
   pause
   goto main
 )
 if "%fschoice%"=="3" (
-  set /p rpath=Folder path: 
-  set /p ruser=User to remove: 
+  set /p rpath=Enter folder path: 
+  set /p ruser=Enter user to remove: 
   powershell -NoProfile -Command "param($p,$u) $acl=Get-Acl $p; $rules=$acl.Access | Where-Object { $_.IdentityReference -like '*'+$u } ; foreach ($r in $rules) { $acl.RemoveAccessRule($r) } ; Set-Acl -Path $p -AclObject $acl; Write-Host 'Removed rules for' $u 'on' $p" -ArgumentList "%rpath%","%ruser%"
   pause
   goto main
@@ -419,8 +419,8 @@ if "%fschoice%"=="4" (
   goto main
 )
 if "%fschoice%"=="5" (
-  set /p inherpath=Folder path: 
-  set /p inher=Enable inheritance? (y/n): 
+  set /p inherpath=Enter folder path: 
+  set /p inher=Enable inheritance? y or n: 
   if /I "%inher%"=="y" ( icacls "%inherpath%" /inheritance:e ) else ( icacls "%inherpath%" /inheritance:d )
   pause
   goto main
@@ -450,7 +450,7 @@ echo 3) Delete a scheduled task
 echo 4) Remove startup shortcuts from Startup folders
 echo 5) Remove startup registry entries (show+confirm)
 echo 6) Back
-set /p stchoice=Choice [1-6]: 
+  set /p stchoice=Choice [1-6]: 
 if "%stchoice%"=="1" (
   powershell -NoProfile -Command "Get-ScheduledTask | Format-Table TaskName,State,Actions -AutoSize"
   pause
@@ -479,7 +479,7 @@ if "%stchoice%"=="4" (
 if "%stchoice%"=="5" (
   echo THIS WILL LIST current Run keys. You will be asked which entry to remove.
   powershell -NoProfile -Command "Get-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run; Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
-  set /p remk=Enter full registry key name to remove (e.g. HKCU:\...\Run;Name) or press Enter to skip: 
+  set /p remk=Enter full registry key in format HKCU:\...\Run;Name or press Enter to skip: 
   if not "%remk%"=="" (
     for /f "tokens=1,2 delims=;" %%A in ("%remk%") do ( powershell -NoProfile -Command "Remove-ItemProperty -Path '%%A' -Name '%%B' -ErrorAction SilentlyContinue; Write-Host 'Removed' %%B 'from' '%%A'" )
   )
@@ -498,7 +498,7 @@ echo 2) Check for updates (best-effort)
 echo 3) Install available updates (best-effort)
 echo 4) Reboot now
 echo 5) Back
-set /p upchoice=Choice [1-5]: 
+  set /p upchoice=Choice [1-5]: 
 if "%upchoice%"=="1" (
   powershell -NoProfile -Command "Set-Service -Name wuauserv -StartupType Automatic; Start-Service -Name wuauserv; Write-Host 'Windows Update service set to Automatic'"
   pause
@@ -534,7 +534,7 @@ echo 2) Clear browser caches (Edge/Chrome/IE examples)
 echo 3) Remove Windows Store app by name (per-user)
 echo 4) Reset Edge/IE policies or settings
 echo 5) Back
-set /p cchoice=Choice [1-5]: 
+  set /p cchoice=Choice [1-5]: 
 if "%cchoice%"=="1" (
   powershell -NoProfile -Command "Remove-Item -Path $env:TEMP\* -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path C:\Windows\Temp\* -Recurse -Force -ErrorAction SilentlyContinue; Dism /Online /Cleanup-Image /StartComponentCleanup /Quiet; Write-Host 'Temp cleanup attempted'"
   pause
@@ -547,7 +547,7 @@ if "%cchoice%"=="2" (
   goto main
 )
 if "%cchoice%"=="3" (
-  set /p appn=Enter Appx package name or partial (e.g. Microsoft.MicrosoftEdge): 
+  set /p appn=Enter Appx package name or partial e.g. Microsoft.MicrosoftEdge: 
   powershell -NoProfile -Command "param($a) Get-AppxPackage -Name $a -ErrorAction SilentlyContinue | Remove-AppxPackage; Get-AppxPackage -AllUsers -Name $a -ErrorAction SilentlyContinue | Remove-AppxPackage -AllUsers; Write-Host 'Requested removal for' $a" -ArgumentList "%appn%"
   pause
   goto main
@@ -568,7 +568,7 @@ echo 1) IIS: List/Start/Stop/Remove sites
 echo 2) DNS: List zones / Add or remove record (requires DNS role tools)
 echo 3) DHCP: List scopes / Add/Remove scope or reservation (requires DHCP tools)
 echo 4) Back
-set /p rchoice=Choice [1-4]: 
+  set /p rchoice=Choice [1-4]: 
 if "%rchoice%"=="1" (
   powershell -NoProfile -Command "Import-Module WebAdministration -ErrorAction SilentlyContinue; Get-ChildItem IIS:\Sites | Format-Table Name,State,PhysicalPath -AutoSize"
   echo For start/stop/remove use the main menu -> Services or return here to extend.
@@ -576,7 +576,7 @@ if "%rchoice%"=="1" (
   goto main
 )
 if "%rchoice%"=="2" (
-  set /p z=Zone name: 
+  set /p z=Enter zone name (leave blank to list all): 
   powershell -NoProfile -Command "param($z) if (Get-Command Get-DnsServerZone -ErrorAction SilentlyContinue) { Get-DnsServerZone | Where-Object { $_.ZoneName -like $z -or $z -eq '' } | Format-Table ZoneName,ZoneType -AutoSize } else { Write-Host 'DNS server cmdlets not present on this host' }" -ArgumentList "%z%"
   pause
   goto main
@@ -599,7 +599,7 @@ echo 3) Reset file permissions for Program Files and Windows (best-effort & dest
 echo 4) Run SFC scan
 echo 5) Run DISM repair
 echo 6) Back
-set /p repchoice=Choice [1-6]: 
+  set /p repchoice=Choice [1-6]: 
 if "%repchoice%"=="1" (
   netsh advfirewall reset
   echo Firewall reset to default
