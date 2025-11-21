@@ -289,10 +289,10 @@ tests/
 
 ```bash
 # Execute full test suite
-pwsh -File tests/Run-AllTests.ps1
+pwsh -File tests/run-all-tests.ps1
 
 # Execute single test
-pwsh -File tests/Test-UserManagement.ps1
+pwsh -File tests/test-user-management.ps1
 ```
 
 ## Conclusion
