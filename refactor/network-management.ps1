@@ -1,3 +1,4 @@
+## TODO: This whole this thing is broken
 # network-management.ps1
 # Functions for managing network adapter settings
 
@@ -30,7 +31,8 @@ function Set-StaticIPAddress {
     try {
         New-NetIPAddress -InterfaceAlias $Alias -IPAddress $IP -PrefixLength $Prefix -DefaultGateway $GW
         Write-Host "Static IP configured: $IP/$Prefix on $Alias" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Error "Failed to set static IP: $_"
     }
 }
