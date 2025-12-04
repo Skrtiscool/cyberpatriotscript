@@ -12,8 +12,13 @@ param(
 
 function Get-LocalUsersList {
     if (Get-Command Get-LocalUser -ErrorAction SilentlyContinue) {
-        Get-LocalUser | Format-Table Name, Enabled, LastLogon -AutoSize
-    } else {
+        # Below is all users
+        #Get-LocalUser | Select-Object * | Format-Table Name, Enabled, LastLogon, Description -AutoSize
+        #  Below is only administrators
+        #Get-LocalGroupMember -Name Administrators | Select-Object -ExpandProperty Name
+
+    }
+    else {
         net user
     }
 }
@@ -31,10 +36,12 @@ function New-LocalUserAccount {
             New-LocalUser -Name $UserName -Password $secPassword -FullName $UserName -Description $Description
             Add-LocalGroupMember -Group 'Users' -Member $UserName
             Write-Host "Created user: $UserName" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "User already exists: $UserName" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         net user $UserName $Password /add /comment:$Description
         Write-Host "Created user (via net): $UserName" -ForegroundColor Green
     }
@@ -47,10 +54,12 @@ function Remove-LocalUserAccount {
         if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {
             Remove-LocalUser -Name $UserName -Confirm:$false
             Write-Host "Deleted user: $UserName" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "User not found: $UserName" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         net user $UserName /delete
         Write-Host "Deleted user (via net): $UserName" -ForegroundColor Green
     }
@@ -63,10 +72,12 @@ function Disable-LocalUserAccount {
         if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {
             Disable-LocalUser -Name $UserName
             Write-Host "Disabled user: $UserName" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "User not found: $UserName" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         net user $UserName /active:no
         Write-Host "Disabled user (via net): $UserName" -ForegroundColor Green
     }
@@ -84,10 +95,12 @@ function Set-LocalUserPassword {
         if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {
             Set-LocalUser -Name $UserName -Password $secPassword
             Write-Host "Password set for user: $UserName" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "User not found: $UserName" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         net user $UserName $NewPassword
         Write-Host "Password set (via net) for user: $UserName" -ForegroundColor Green
     }
@@ -109,7 +122,8 @@ function Disable-BuiltInAccounts {
                 Disable-LocalUser -Name $account
                 Write-Host "Disabled built-in account: $account" -ForegroundColor Green
             }
-        } else {
+        }
+        else {
             if (net user $account 2>$null) {
                 net user $account /active:no
                 Write-Host "Disabled built-in account (via net): $account" -ForegroundColor Green
