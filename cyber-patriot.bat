@@ -62,7 +62,7 @@ echo 6: Set user password
 echo 7: Force password change at next logon
 echo 8: Disable built-in accounts (Guest, DefaultAccount, WDAGUtilityAccount)
 echo 9: Back
-set /p uchoice=Choice [1-8]: 
+set /p uchoice=Choice [1-9]: 
 if "%uchoice%"=="1" (
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "ListUsers"
   pause
