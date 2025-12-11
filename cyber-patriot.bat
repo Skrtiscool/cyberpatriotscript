@@ -63,7 +63,7 @@ echo 7: Disable built-in accounts (Guest, DefaultAccount, WDAGUtilityAccount)
 echo 8: Back
 set /p uchoice=Choice [1-8]: 
 if "%uchoice%"=="1" (
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "List"
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "ListUsers"
   pause
   goto menu
 )
