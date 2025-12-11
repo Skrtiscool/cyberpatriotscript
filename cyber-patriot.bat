@@ -53,14 +53,15 @@ goto menu
 :user_accounts
 cls
 echo User Accounts submenu
-echo 1: List local users
-echo 2: Create user
-echo 3: Delete user
-echo 4: Disable user
-echo 5: Set user password
-echo 6: Force password change at next logon
-echo 7: Disable built-in accounts (Guest, DefaultAccount, WDAGUtilityAccount)
-echo 8: Back
+echo 1: List Users
+echo 2: List Admins
+echo 3: Create user
+echo 4: Delete user
+echo 5: Disable user
+echo 6: Set user password
+echo 7: Force password change at next logon
+echo 8: Disable built-in accounts (Guest, DefaultAccount, WDAGUtilityAccount)
+echo 9: Back
 set /p uchoice=Choice [1-8]: 
 if "%uchoice%"=="1" (
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "ListUsers"
@@ -68,44 +69,49 @@ if "%uchoice%"=="1" (
   goto menu
 )
 if "%uchoice%"=="2" (
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "ListAdmins"
+  pause
+  goto menu
+)
+if "%uchoice%"=="3" (
   set /p uname=Enter new username: 
   set /p upass=Enter password (visible): 
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "Create" -Username "%uname%" -Password "%upass%"
   pause
   goto menu
 )
-if "%uchoice%"=="3" (
+if "%uchoice%"=="4" (
   set /p deluser=Enter username to delete: 
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "Delete" -Username "%deluser%"
   pause
   goto menu
 )
-if "%uchoice%"=="4" (
+if "%uchoice%"=="5" (
   set /p duser=Enter username to disable: 
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "Disable" -Username "%duser%"
   pause
   goto menu
 )
-if "%uchoice%"=="5" (
+if "%uchoice%"=="6" (
   set /p spuser=Enter username to set password for: 
   set /p spass=Enter new password (visible): 
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "SetPassword" -Username "%spuser%" -Password "%spass%"
   pause
   goto menu
 )
-if "%uchoice%"=="6" (
+if "%uchoice%"=="7" (
   set /p fuser=Enter username to force change at next logon: 
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "ForcePasswordChange" -Username "%fuser%"
   pause
   goto menu
 )
-if "%uchoice%"=="7" (
+if "%uchoice%"=="8" (
   echo Disabling built-in accounts...
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "DisableBuiltIn"
   pause
   goto menu
 )
-if "%uchoice%"=="8" goto menu
+if "%uchoice%"=="9" goto menu
 goto user_accounts
 
 :groups
