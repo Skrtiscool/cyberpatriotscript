@@ -19,7 +19,7 @@ function Get-LocalUsersList {
     }
 }
 
-function Get-LocalGroupMember { 
+function Get-AdminLists { 
     if (Get-Command Get-LocalGroupMember -ErrorAction SilentlyContinue) {
         Get-LocalGroupMember -Name Administrators | Select-Object -ExpandProperty Name
     }
@@ -141,7 +141,7 @@ function Disable-BuiltInAccounts {
 # Execute based on action parameter
 switch ($Action) {
     "ListUsers" { Get-LocalUsersList }
-    "ListAdmins" { Get-LocalGroupMember }
+    "ListAdmins" { Get-AdminLists }
     "Create" { New-LocalUserAccount -UserName $Username -Password $Password -Description $Description }
     "Delete" { Remove-LocalUserAccount -UserName $Username }
     "Disable" { Disable-LocalUserAccount -UserName $Username }
