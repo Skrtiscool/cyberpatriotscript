@@ -12,16 +12,22 @@ param(
 
 function Get-LocalUsersList {
     if (Get-Command Get-LocalUser -ErrorAction SilentlyContinue) {
-        # Below is all users
-        #Get-LocalUser | Select-Object * | Format-Table Name, Enabled, LastLogon, Description -AutoSize
-        #  Below is only administrators
-        #Get-LocalGroupMember -Name Administrators | Select-Object -ExpandProperty Name
-
+        Get-LocalUser | Select-Object * | Format-Table Name, Enabled, LastLogon, Description -AutoSize
     }
     else {
         net user
     }
 }
+
+function Get-LocalGroupMember { 
+    if (Get-Command Get-LocalUser -ErrorAction SilentlyContinue) {
+        Get-LocalGroupMember -Name Administrators | Select-Object -ExpandProperty Name
+    }
+    else {
+        net user
+    }
+}
+    
 
 function New-LocalUserAccount {
     param(
@@ -134,7 +140,8 @@ function Disable-BuiltInAccounts {
 
 # Execute based on action parameter
 switch ($Action) {
-    "List" { Get-LocalUsersList }
+    "List Users" { Get-LocalUsersList }
+    "list Admins" { Get-LocalGroupMember }
     "Create" { New-LocalUserAccount -UserName $Username -Password $Password -Description $Description }
     "Delete" { Remove-LocalUserAccount -UserName $Username }
     "Disable" { Disable-LocalUserAccount -UserName $Username }
