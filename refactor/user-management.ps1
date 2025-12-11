@@ -31,92 +31,92 @@ function Get-AdminLists {
 
 function New-LocalUserAccount {
     param(
-        [string]$UserName,
+        [string]$Username,
         [string]$Password,
         [string]$Description
     )
     
     if (Get-Command New-LocalUser -ErrorAction SilentlyContinue) {
-        if (-not (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue)) {
+        if (-not (Get-LocalUser -Name $Username -ErrorAction SilentlyContinue)) {
             $secPassword = ConvertTo-SecureString $Password -AsPlainText -Force
-            New-LocalUser -Name $UserName -Password $secPassword -FullName $UserName -Description $Description
-            Add-LocalGroupMember -Group 'Users' -Member $UserName
-            Write-Host "Created user: $UserName" -ForegroundColor Green
+            New-LocalUser -Name $Username -Password $secPassword -FullName $Username -Description $Description
+            Add-LocalGroupMember -Group 'Users' -Member $Username
+            Write-Host "Created user: $Username" -ForegroundColor Green
         }
         else {
-            Write-Host "User already exists: $UserName" -ForegroundColor Yellow
+            Write-Host "User already exists: $Username" -ForegroundColor Yellow
         }
     }
     else {
-        net user $UserName $Password /add /comment:$Description
-        Write-Host "Created user (via net): $UserName" -ForegroundColor Green
+        net user $Username $Password /add /comment:$Description
+        Write-Host "Created user (via net): $Username" -ForegroundColor Green
     }
 }
 
 function Remove-LocalUserAccount {
-    param([string]$UserName)
+    param([string]$Username)
     
     if (Get-Command Remove-LocalUser -ErrorAction SilentlyContinue) {
-        if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {
-            Remove-LocalUser -Name $UserName -Confirm:$false
-            Write-Host "Deleted user: $UserName" -ForegroundColor Green
+        if (Get-LocalUser -Name $Username -ErrorAction SilentlyContinue) {
+            Remove-LocalUser -Name $Username -Confirm:$false
+            Write-Host "Deleted user: $Username" -ForegroundColor Green
         }
         else {
-            Write-Host "User not found: $UserName" -ForegroundColor Yellow
+            Write-Host "User not found: $Username" -ForegroundColor Yellow
         }
     }
     else {
-        net user $UserName /delete
-        Write-Host "Deleted user (via net): $UserName" -ForegroundColor Green
+        net user $Username /delete
+        Write-Host "Deleted user (via net): $Username" -ForegroundColor Green
     }
 }
 
 function Disable-LocalUserAccount {
-    param([string]$UserName)
+    param([string]$Username)
     
     if (Get-Command Disable-LocalUser -ErrorAction SilentlyContinue) {
-        if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {
-            Disable-LocalUser -Name $UserName
-            Write-Host "Disabled user: $UserName" -ForegroundColor Green
+        if (Get-LocalUser -Name $Username -ErrorAction SilentlyContinue) {
+            Disable-LocalUser -Name $Username
+            Write-Host "Disabled user: $Username" -ForegroundColor Green
         }
         else {
-            Write-Host "User not found: $UserName" -ForegroundColor Yellow
+            Write-Host "User not found: $Username" -ForegroundColor Yellow
         }
     }
     else {
-        net user $UserName /active:no
-        Write-Host "Disabled user (via net): $UserName" -ForegroundColor Green
+        net user $Username /active:no
+        Write-Host "Disabled user (via net): $Username" -ForegroundColor Green
     }
 }
 
 function Set-LocalUserPassword {
     param(
-        [string]$UserName,
+        [string]$Username,
         [string]$NewPassword
     )
     
     $secPassword = ConvertTo-SecureString $NewPassword -AsPlainText -Force
     
     if (Get-Command Set-LocalUser -ErrorAction SilentlyContinue) {
-        if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {
-            Set-LocalUser -Name $UserName -Password $secPassword
-            Write-Host "Password set for user: $UserName" -ForegroundColor Green
+        if (Get-LocalUser -Name $Username -ErrorAction SilentlyContinue) {
+            Set-LocalUser -Name $Username -Password $secPassword
+            Write-Host "Password set for user: $Username" -ForegroundColor Green
         }
         else {
-            Write-Host "User not found: $UserName" -ForegroundColor Yellow
+            Write-Host "User not found: $Username" -ForegroundColor Yellow
         }
     }
     else {
-        net user $UserName $NewPassword
-        Write-Host "Password set (via net) for user: $UserName" -ForegroundColor Green
+        net user $Username $NewPassword
+        Write-Host "Password set (via net) for user: $Username" -ForegroundColor Green
     }
 }
 
 function Force-PasswordChangeAtLogon {
-    param([string]$UserName)
+    param([string]$Username)
     
-    net user $UserName /logonpasswordchg:yes
-    Write-Host "User will be forced to change password at next logon: $UserName" -ForegroundColor Green
+    net user $Username /logonpasswordchg:yes
+    Write-Host "User will be forced to change password at next logon: $Username" -ForegroundColor Green
 }
 
 function Disable-BuiltInAccounts {
