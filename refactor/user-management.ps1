@@ -20,7 +20,7 @@ function Get-LocalUsersList {
 }
 
 function Get-LocalGroupMember { 
-    if (Get-Command Get-LocalUser -ErrorAction SilentlyContinue) {
+    if (Get-Command Get-LocalGroupMember -ErrorAction SilentlyContinue) {
         Get-LocalGroupMember -Name Administrators | Select-Object -ExpandProperty Name
     }
     else {
