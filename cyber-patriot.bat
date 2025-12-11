@@ -80,12 +80,7 @@ if "%uchoice%"=="3" (
   pause
   goto menu
 )
-if "%uchoice%"=="4" (
-  set /p deluser=Enter username to delete: 
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "Delete" -Username "%deluser%"
-  pause
-  goto menu
-)
+if "%uchoice%"=="4" goto user_delete
 if "%uchoice%"=="5" (
   set /p duser=Enter username to disable: 
   powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "Disable" -Username "%duser%"
@@ -113,6 +108,13 @@ if "%uchoice%"=="8" (
 )
 if "%uchoice%"=="9" goto menu
 goto user_accounts
+
+:user_delete
+cls
+set /p deluser=Enter username to delete: 
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0refactor\user-management.ps1" -Action "Delete" -Username "%deluser%"
+pause
+goto menu
 
 :groups
 cls
