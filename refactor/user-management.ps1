@@ -2,7 +2,7 @@
 # Functions for managing local user accounts
 
 param(
-    [ValidateSet("List", "Create", "Delete", "Disable", "SetPassword", "ForcePasswordChange", "DisableBuiltIn")]
+    [ValidateSet("ListUsers","ListAdmins", "Create", "Delete", "Disable", "SetPassword", "ForcePasswordChange", "DisableBuiltIn")]
     [string]$Action,
     
     [string]$Username,
